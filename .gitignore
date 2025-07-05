@@ -35,3 +35,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # AppImage
 *.AppImage
+
+# Plugin configuration
+data.json
+
+# Plugin build
+main.js
