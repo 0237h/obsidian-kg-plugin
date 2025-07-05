@@ -1,0 +1,10 @@
+{
+  "id": "knowledge-graph-publisher",
+  "name": "Knowledge Graph Publisher",
+  "version": "0.0.1",
+  "minAppVersion": "0.15.0",
+  "description": "Publish your Obsidian notes and knowledge to The Graph's Knowledge Graph using GRC-20",
+  "author": "Etienne Donneger",
+  "authorUrl": "https://github.com/0237h",
+  "isDesktopOnly": false
+}
