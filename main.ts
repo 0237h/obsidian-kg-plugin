@@ -1,5 +1,5 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
-import { Graph, Id, Ipfs, getSmartAccountWalletClient } from '@graphprotocol/grc-20';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, type MarkdownFileInfo } from 'obsidian';
+// import { Graph, Id, Ipfs, getSmartAccountWalletClient } from '@graphprotocol/grc-20';
 import { KnowledgeGraphService } from './src/knowledge-graph-service';
 import { NoteProcessor } from './src/note-processor';
 import { TagManager } from './src/tag-manager';
@@ -30,14 +30,14 @@ const DEFAULT_SETTINGS: KnowledgeGraphSettings = {
 };
 
 export default class KnowledgeGraphPlugin extends Plugin {
-  settings: KnowledgeGraphSettings;
-  knowledgeGraphService: KnowledgeGraphService;
-  noteProcessor: NoteProcessor;
-  tagManager: TagManager;
-  spaceManager: SpaceManager;
-  statusBarItem: HTMLElement;
+  settings!: KnowledgeGraphSettings;
+  knowledgeGraphService!: KnowledgeGraphService;
+  noteProcessor!: NoteProcessor;
+  tagManager!: TagManager;
+  spaceManager!: SpaceManager;
+  statusBarItem!: HTMLElement;
 
-  async onload() {
+  override async onload() {
     await this.loadSettings();
 
     // Initialize services
@@ -59,7 +59,7 @@ export default class KnowledgeGraphPlugin extends Plugin {
     this.addCommand({
       id: 'publish-current-note',
       name: 'Publish current note to Knowledge Graph',
-      editorCallback: (editor: Editor, view: MarkdownView) => {
+      editorCallback: (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) => {
         this.publishCurrentNote();
       }
     });
@@ -112,7 +112,7 @@ export default class KnowledgeGraphPlugin extends Plugin {
     console.log('Knowledge Graph Publisher plugin loaded');
   }
 
-  onunload() {
+  override onunload() {
     console.log('Knowledge Graph Publisher plugin unloaded');
   }
 
@@ -166,7 +166,8 @@ export default class KnowledgeGraphPlugin extends Plugin {
       
     } catch (error) {
       console.error('Error publishing note:', error);
-      new Notice(`Error publishing note: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      new Notice(`Error publishing note: ${errorMessage}`);
       this.statusBarItem.setText('KG: Error');
     }
   }
@@ -240,15 +241,15 @@ export default class KnowledgeGraphPlugin extends Plugin {
 
 class PublishProgressModal extends Modal {
   private total: number;
-  private progressEl: HTMLElement;
-  private statusEl: HTMLElement;
+  private progressEl!: HTMLElement;
+  private statusEl!: HTMLElement;
 
   constructor(app: App, total: number) {
     super(app);
     this.total = total;
   }
 
-  onOpen() {
+  override onOpen() {
     const { contentEl } = this;
     contentEl.createEl('h2', { text: 'Publishing Notes to Knowledge Graph' });
     
@@ -258,11 +259,11 @@ class PublishProgressModal extends Modal {
 
   updateProgress(published: number, errors: number) {
     const percentage = ((published + errors) / this.total) * 100;
-    this.progressEl.style.width = `${percentage}%`;
+    //(this.progressEl as HTMLElement & { style: CSSStyleDeclaration }).style.width = `${percentage}%`;
     this.statusEl.setText(`Published: ${published}, Errors: ${errors}, Remaining: ${this.total - published - errors}`);
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
   }
@@ -278,7 +279,7 @@ class CreateSpaceModal extends Modal {
     this.onSuccess = onSuccess;
   }
 
-  onOpen() {
+  override onOpen() {
     const { contentEl } = this;
     contentEl.createEl('h2', { text: 'Create New Knowledge Graph Space' });
 
@@ -289,19 +290,20 @@ class CreateSpaceModal extends Modal {
     
     const submitBtn = form.createEl('button', { text: 'Create Space', type: 'submit' });
     
-    form.onsubmit = async (e) => {
+    form.onsubmit = async (e: Event) => {
       e.preventDefault();
       try {
         const spaceId = await this.spaceManager.createSpace(nameInput.value, descInput.value);
         this.onSuccess(spaceId);
         this.close();
       } catch (error) {
-        new Notice(`Error creating space: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        new Notice(`Error creating space: ${errorMessage}`);
       }
     };
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
   }
@@ -329,9 +331,10 @@ class KnowledgeGraphSettingsTab extends PluginSettingTab {
         .addOption('TESTNET', 'Testnet')
         .addOption('MAINNET', 'Mainnet')
         .setValue(this.plugin.settings.network)
-        .onChange(async (value: 'MAINNET' | 'TESTNET') => {
-          this.plugin.settings.network = value;
-          this.plugin.settings.apiOrigin = value === 'TESTNET' 
+        .onChange(async (value: string) => {
+          const networkValue = value as 'MAINNET' | 'TESTNET';
+          this.plugin.settings.network = networkValue;
+          this.plugin.settings.apiOrigin = networkValue === 'TESTNET' 
             ? 'https://hypergraph-v2-testnet.up.railway.app'
             : 'https://hypergraph-v2.up.railway.app';
           await this.plugin.saveSettings();

@@ -1,6 +1,6 @@
-import { App, Notice } from 'obsidian';
-import { Graph, Id, Ipfs, getSmartAccountWalletClient, Op } from '@graphprotocol/grc-20';
-import { NoteData, ProcessedEntity, ProcessedRelation } from './types';
+import { App } from 'obsidian';
+import { Graph, Id, Ipfs, getSmartAccountWalletClient, type Op } from '@graphprotocol/grc-20';
+import type { NoteData, ProcessedEntity, ProcessedRelation } from './types';
 
 export class KnowledgeGraphService {
   private app: App;
@@ -55,7 +55,7 @@ export class KnowledgeGraphService {
     // Create link entities and relations if enabled
     if (this.settings.includeLinks && noteData.links.length > 0) {
       for (const link of noteData.links) {
-        const linkEntity = await this.createLinkEntity(link, ops);
+        const linkEntity = await this.createLinkEntity(link.target, ops);
         entities.push(linkEntity);
         
         // Create relation between note and linked note
@@ -97,7 +97,8 @@ export class KnowledgeGraphService {
         throw new Error(`Failed to get calldata: ${response.statusText}`);
       }
 
-      const { to, data } = await response.json();
+      const responseData = await response.json() as { to: string; data: string };
+      const { to, data } = responseData;
 
       // Send transaction
       const txResult = await this.walletClient.sendTransaction({
@@ -118,31 +119,31 @@ export class KnowledgeGraphService {
     // Create properties for the note
     const { id: titlePropertyId, ops: titlePropertyOps } = Graph.createProperty({
       name: 'Title',
-      type: 'TEXT',
+      dataType: 'TEXT',
     });
     ops.push(...titlePropertyOps);
 
     const { id: contentPropertyId, ops: contentPropertyOps } = Graph.createProperty({
       name: 'Content',
-      type: 'TEXT',
+      dataType: 'TEXT',
     });
     ops.push(...contentPropertyOps);
 
     const { id: createdPropertyId, ops: createdPropertyOps } = Graph.createProperty({
       name: 'Created Date',
-      type: 'TIME',
+      dataType: 'TIME',
     });
     ops.push(...createdPropertyOps);
 
     const { id: modifiedPropertyId, ops: modifiedPropertyOps } = Graph.createProperty({
       name: 'Modified Date',
-      type: 'TIME',
+      dataType: 'TIME',
     });
     ops.push(...modifiedPropertyOps);
 
     const { id: pathPropertyId, ops: pathPropertyOps } = Graph.createProperty({
       name: 'File Path',
-      type: 'TEXT',
+      dataType: 'TEXT',
     });
     ops.push(...pathPropertyOps);
 
@@ -195,7 +196,7 @@ export class KnowledgeGraphService {
     // Create properties for the tag
     const { id: namePropertyId, ops: namePropertyOps } = Graph.createProperty({
       name: 'Tag Name',
-      type: 'TEXT',
+      dataType: 'TEXT',
     });
     ops.push(...namePropertyOps);
 
@@ -232,7 +233,7 @@ export class KnowledgeGraphService {
     // Create properties for the link
     const { id: linkPropertyId, ops: linkPropertyOps } = Graph.createProperty({
       name: 'Link Target',
-      type: 'TEXT',
+      dataType: 'TEXT',
     });
     ops.push(...linkPropertyOps);
 
@@ -266,21 +267,22 @@ export class KnowledgeGraphService {
   }
 
   private async createTagRelation(noteId: string, tagId: string, ops: Op[]): Promise<ProcessedRelation> {
-    // Create the "has-tag" relation property
-    const { id: hasTagPropertyId, ops: hasTagPropertyOps } = Graph.createProperty({
-      name: 'Has Tag',
-      type: 'RELATION',
+    // Create the "has-tag" relation type
+    const { id: hasTagTypeId, ops: hasTagTypeOps } = Graph.createType({
+      name: 'Has Tag Relation',
+      properties: [],
     });
-    ops.push(...hasTagPropertyOps);
+    ops.push(...hasTagTypeOps);
 
     // Create the relation
     const relationId = Id.generate();
-    const relationOps = Graph.createRelation({
+    const { ops: relationOps } = Graph.createRelation({
       id: relationId,
       fromEntity: noteId,
       toEntity: tagId,
-      property: hasTagPropertyId,
-      values: [],
+      type: hasTagTypeId,
+      toSpace: this.settings.spaceId,
+      position: 'tag-relation',
     });
     ops.push(...relationOps);
 
@@ -289,26 +291,27 @@ export class KnowledgeGraphService {
       type: 'has-tag',
       fromEntity: noteId,
       toEntity: tagId,
-      ops: [...hasTagPropertyOps, ...relationOps],
+      ops: [...hasTagTypeOps, ...relationOps],
     };
   }
 
   private async createLinkRelation(noteId: string, linkId: string, ops: Op[]): Promise<ProcessedRelation> {
-    // Create the "links-to" relation property
-    const { id: linksToPropertyId, ops: linksToPropertyOps } = Graph.createProperty({
-      name: 'Links To',
-      type: 'RELATION',
+    // Create the "links-to" relation type
+    const { id: linksToTypeId, ops: linksToTypeOps } = Graph.createType({
+      name: 'Links To Relation',
+      properties: [],
     });
-    ops.push(...linksToPropertyOps);
+    ops.push(...linksToTypeOps);
 
     // Create the relation
     const relationId = Id.generate();
-    const relationOps = Graph.createRelation({
+    const { ops: relationOps } = Graph.createRelation({
       id: relationId,
       fromEntity: noteId,
       toEntity: linkId,
-      property: linksToPropertyId,
-      values: [],
+      type: linksToTypeId,
+      toSpace: this.settings.spaceId,
+      position: 'link-relation',
     });
     ops.push(...relationOps);
 
@@ -317,7 +320,7 @@ export class KnowledgeGraphService {
       type: 'links-to',
       fromEntity: noteId,
       toEntity: linkId,
-      ops: [...linksToPropertyOps, ...relationOps],
+      ops: [...linksToTypeOps, ...relationOps],
     };
   }
 }

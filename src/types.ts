@@ -1,4 +1,4 @@
-import { Op } from '@graphprotocol/grc-20';
+import type { Op } from '@graphprotocol/grc-20';
 
 export interface NoteData {
   title: string;

@@ -1,5 +1,5 @@
-import { App, TFile, CachedMetadata } from 'obsidian';
-import { NoteData, LinkData } from './types';
+import { App, TFile, type CachedMetadata } from 'obsidian';
+import type { NoteData, LinkData } from './types';
 
 export class NoteProcessor {
   private app: App;
@@ -35,7 +35,7 @@ export class NoteProcessor {
 
     // Then try to get the first H1 heading
     const h1Match = content.match(/^# (.+)$/m);
-    if (h1Match) {
+    if (h1Match && h1Match[1]) {
       return h1Match[1].trim();
     }
 
@@ -141,28 +141,34 @@ export class NoteProcessor {
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     let match;
     while ((match = codeBlockRegex.exec(content)) !== null) {
-      blocks.push({
-        type: 'code',
-        content: match[2].trim(),
-      });
+      if (match[2]) {
+        blocks.push({
+          type: 'code',
+          content: match[2].trim(),
+        });
+      }
     }
 
     // Extract callouts
     const calloutRegex = /^> \[!(\w+)\].*?\n((?:^>.*$\n?)*)/gm;
     while ((match = calloutRegex.exec(content)) !== null) {
-      blocks.push({
-        type: 'callout',
-        content: match[2].replace(/^> /gm, '').trim(),
-      });
+      if (match[2]) {
+        blocks.push({
+          type: 'callout',
+          content: match[2].replace(/^> /gm, '').trim(),
+        });
+      }
     }
 
     // Extract tables
     const tableRegex = /(\|.*\|[\r\n]+\|.*\|[\r\n]+(?:\|.*\|[\r\n]*)*)/g;
     while ((match = tableRegex.exec(content)) !== null) {
-      blocks.push({
-        type: 'table',
-        content: match[1].trim(),
-      });
+      if (match[1]) {
+        blocks.push({
+          type: 'table',
+          content: match[1].trim(),
+        });
+      }
     }
 
     return blocks;
@@ -203,6 +209,8 @@ export class NoteProcessor {
       for (let j = i + 1; j < notes.length; j++) {
         const note1 = notes[i];
         const note2 = notes[j];
+
+        if (!note1 || !note2) continue;
 
         // Check for direct links
         const hasDirectLink = note1.links.some(link => link.target === note2.title) ||

@@ -1,5 +1,5 @@
 import { App, TFile } from 'obsidian';
-import { TagMetadata } from './types';
+import type { TagMetadata } from './types';
 
 export class TagManager {
   private app: App;
@@ -226,15 +226,17 @@ export class TagManager {
     const hashtagRegex = /#([^\s#]+)/g;
     let match;
     while ((match = hashtagRegex.exec(content)) !== null) {
-      tags.push(match[1]);
+      if (match[1]) {
+        tags.push(match[1]);
+      }
     }
     
     // Extract tags from frontmatter
     const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (frontmatterMatch) {
+    if (frontmatterMatch && frontmatterMatch[1]) {
       const frontmatter = frontmatterMatch[1];
       const tagsMatch = frontmatter.match(/tags:\s*\[(.*?)\]/s);
-      if (tagsMatch) {
+      if (tagsMatch && tagsMatch[1]) {
         const frontmatterTags = tagsMatch[1]
           .split(',')
           .map(tag => tag.trim().replace(/['"]/g, ''))
@@ -276,7 +278,8 @@ export class TagManager {
       hash = hash & hash; // Convert to 32-bit integer
     }
     
-    return colors[Math.abs(hash) % colors.length];
+    const colorIndex = Math.abs(hash) % colors.length;
+    return colors[colorIndex] ?? colors[0]!;
   }
 
   async getMostUsedTags(limit = 10): Promise<TagMetadata[]> {
@@ -319,6 +322,8 @@ export class TagManager {
       const date = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
       const dateStr = date.toISOString().split('T')[0];
       
+      if (!dateStr) continue;
+      
       const dayStart = date.getTime();
       const dayEnd = dayStart + (24 * 60 * 60 * 1000);
       
@@ -354,8 +359,9 @@ export class TagManager {
     return Array.from(pairCounts.entries())
       .map(([pairKey, count]) => {
         const [tag1, tag2] = pairKey.split('|');
-        return { tag1, tag2, count };
+        return { tag1: tag1 || '', tag2: tag2 || '', count };
       })
+      .filter(pair => pair.tag1 && pair.tag2)
       .sort((a, b) => b.count - a.count)
       .slice(0, limit);
   }
@@ -384,13 +390,15 @@ export class TagManager {
     
     const totalUsage = allTags.reduce((sum, tag) => sum + tag.count, 0);
     const hierarchicalTags = allTags.filter(tag => tag.name.includes('/')).length;
+    const firstTag = allTags[0];
+    const lastTag = allTags[allTags.length - 1];
     
     return {
       totalTags: allTags.length,
       totalUsage,
       averageTagsPerNote: totalUsage / files.length,
-      mostUsedTag: allTags[0].name,
-      leastUsedTag: allTags[allTags.length - 1].name,
+      mostUsedTag: firstTag?.name || '',
+      leastUsedTag: lastTag?.name || '',
       hierarchicalTags,
     };
   }

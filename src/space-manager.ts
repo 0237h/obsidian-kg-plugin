@@ -1,5 +1,5 @@
 import { Graph } from '@graphprotocol/grc-20';
-import { KnowledgeGraphSpace, NetworkConfig } from './types';
+import type { KnowledgeGraphSpace, NetworkConfig } from './types';
 
 export class SpaceManager {
   private settings: any;
@@ -30,12 +30,13 @@ export class SpaceManager {
     try {
       const spaceName = this.sanitizeSpaceName(name);
       
-      const spaceId = await Graph.createSpace({
-        initialEditorAddress: this.getEditorAddress(),
-        spaceName,
+      const spaceResult = await Graph.createSpace({
+        editorAddress: this.getEditorAddress(),
+        name: spaceName,
         network: this.settings.network,
       });
 
+      const spaceId = spaceResult.id;
       console.log(`Created space: ${spaceId}`);
       
       // Store space metadata locally
@@ -50,7 +51,8 @@ export class SpaceManager {
       return spaceId;
     } catch (error) {
       console.error('Error creating space:', error);
-      throw new Error(`Failed to create space: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to create space: ${errorMessage}`);
     }
   }
 
@@ -73,16 +75,16 @@ export class SpaceManager {
         throw new Error(`Failed to fetch space details: ${response.statusText}`);
       }
       
-      const spaceData = await response.json();
+      const spaceData = await response.json() as any;
       return {
         id: spaceId,
-        name: spaceData.name || 'Unknown Space',
-        description: spaceData.description || '',
-        isPublic: spaceData.isPublic || false,
-        createdAt: spaceData.createdAt || 0,
-        updatedAt: spaceData.updatedAt || 0,
-        memberCount: spaceData.memberCount || 1,
-        governance: spaceData.governance || 'PERSONAL',
+        name: spaceData?.name || 'Unknown Space',
+        description: spaceData?.description || '',
+        isPublic: spaceData?.isPublic || false,
+        createdAt: spaceData?.createdAt || 0,
+        updatedAt: spaceData?.updatedAt || 0,
+        memberCount: spaceData?.memberCount || 1,
+        governance: spaceData?.governance || 'PERSONAL',
       };
     } catch (error) {
       console.error('Error fetching space details:', error);
@@ -111,11 +113,11 @@ export class SpaceManager {
         throw new Error(`Failed to fetch space stats: ${response.statusText}`);
       }
       
-      const stats = await response.json();
+      const stats = await response.json() as any;
       return {
-        entityCount: stats.entityCount || 0,
-        relationCount: stats.relationCount || 0,
-        lastUpdate: stats.lastUpdate || 0,
+        entityCount: stats?.entityCount || 0,
+        relationCount: stats?.relationCount || 0,
+        lastUpdate: stats?.lastUpdate || 0,
       };
     } catch (error) {
       console.error('Error fetching space stats:', error);
@@ -167,7 +169,8 @@ export class SpaceManager {
       return inviteCode;
     } catch (error) {
       console.error('Error generating invite code:', error);
-      throw new Error(`Failed to generate invite code: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to generate invite code: ${errorMessage}`);
     }
   }
 
@@ -181,8 +184,9 @@ export class SpaceManager {
   }
 
   private getEditorAddress(): string {
-    // In a real implementation, this would derive from the private key
-    // For now, return a placeholder
+    // In a real implementation, this would derive the address from the private key
+    // For now, we'll use a placeholder that should be replaced with actual wallet address derivation
+    // This should ideally match the address from the wallet client used in knowledge-graph-service
     return '0x0000000000000000000000000000000000000000';
   }
 
@@ -196,8 +200,8 @@ export class SpaceManager {
       };
       
       // Store in localStorage (in a real plugin, this would use Obsidian's data storage)
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(key, JSON.stringify(data));
+      if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+        globalThis.localStorage.setItem(key, JSON.stringify(data));
       }
     } catch (error) {
       console.error('Error storing space metadata:', error);
@@ -208,11 +212,11 @@ export class SpaceManager {
     try {
       const spaces: KnowledgeGraphSpace[] = [];
       
-      if (typeof window !== 'undefined' && window.localStorage) {
-        for (let i = 0; i < window.localStorage.length; i++) {
-          const key = window.localStorage.key(i);
+      if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+        for (let i = 0; i < globalThis.localStorage.length; i++) {
+          const key = globalThis.localStorage.key(i);
           if (key && key.startsWith('kg_space_')) {
-            const data = window.localStorage.getItem(key);
+            const data = globalThis.localStorage.getItem(key);
             if (data) {
               const space = JSON.parse(data);
               spaces.push(space);
@@ -231,8 +235,8 @@ export class SpaceManager {
   private async removeSpaceMetadata(spaceId: string) {
     try {
       const key = `kg_space_${spaceId}`;
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.removeItem(key);
+      if (typeof globalThis !== 'undefined' && 'localStorage' in globalThis) {
+        globalThis.localStorage.removeItem(key);
       }
     } catch (error) {
       console.error('Error removing space metadata:', error);
@@ -251,7 +255,8 @@ export class SpaceManager {
       };
     } catch (error) {
       console.error('Error exporting space data:', error);
-      throw new Error(`Failed to export space data: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to export space data: ${errorMessage}`);
     }
   }
 
@@ -267,7 +272,8 @@ export class SpaceManager {
       return spaceId;
     } catch (error) {
       console.error('Error importing space data:', error);
-      throw new Error(`Failed to import space data: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to import space data: ${errorMessage}`);
     }
   }
 }
