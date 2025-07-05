@@ -16,21 +16,24 @@ A powerful Obsidian plugin that seamlessly integrates your personal knowledge ma
 
 ### From Source (Development)
 
+> [!NOTE]
+> You need to install [Bun](https://bun.sh) for development
+
 1. Clone this repository into your Obsidian plugins folder:
    ```bash
    cd path/to/your/vault/.obsidian/plugins
-   git clone https://github.com/your-username/obsidian-knowledge-graph-publisher.git
+   git clone https://github.com/0237h/obsidian-kg-plugin.git
    ```
 
 2. Install dependencies:
    ```bash
-   cd obsidian-knowledge-graph-publisher
-   npm install
+   cd obsidian-kg-plugin
+   bun install
    ```
 
 3. Build the plugin:
    ```bash
-   npm run build
+   bun run build
    ```
 
 4. Enable the plugin in Obsidian's Community Plugins settings
@@ -135,7 +138,6 @@ src/
 ├── space-manager.ts           # Space creation and management
 ├── types.ts                   # TypeScript definitions
 └── utils.ts                   # Utility functions
-
 main.ts                        # Main plugin file
 manifest.json                  # Plugin manifest
 styles.css                     # Plugin styles
@@ -145,23 +147,23 @@ styles.css                     # Plugin styles
 
 ```bash
 # Development build with watch mode
-npm run dev
+bun run dev
 
 # Production build
-npm run build
+bun run build
 
 # Type checking
-npm run check
+bun run check
 ```
 
 ### Testing
 
 ```bash
 # Run tests
-npm test
+bun test
 
 # Run tests with coverage
-npm run test:coverage
+bun run test:coverage
 ```
 
 ## How It Works
@@ -222,30 +224,16 @@ Enable debug mode in settings to see detailed logs:
 2. Enable "Debug Mode"
 3. Check the Developer Console (Ctrl+Shift+I) for detailed logs
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
 ### Development Setup
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes
 4. Add tests for new functionality
-5. Ensure all tests pass: `npm test`
+5. Ensure all tests pass: `bun test`
 6. Commit your changes: `git commit -m 'Add amazing feature'`
 7. Push to the branch: `git push origin feature/amazing-feature`
 8. Open a Pull Request
-
-## Roadmap
-
-- [ ] **Bidirectional Sync**: Pull changes from the Knowledge Graph back to Obsidian
-- [ ] **Visual Graph Explorer**: Browse the Knowledge Graph directly in Obsidian
-- [ ] **AI-Powered Insights**: Discover connections and insights from your knowledge
-- [ ] **Multi-Vault Support**: Sync multiple vaults to the same space
-- [ ] **Advanced Analytics**: Detailed metrics on your knowledge contributions
-- [ ] **Mobile Support**: Full functionality on Obsidian mobile apps
-- [ ] **Plugin Integrations**: Work with other popular Obsidian plugins
 
 ## License
 
@@ -253,18 +241,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📖 **Documentation**: [Full documentation](https://docs.your-domain.com)
-- 💬 **Community**: Join our [Discord](https://discord.gg/your-server)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/obsidian-knowledge-graph-publisher/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/your-username/obsidian-knowledge-graph-publisher/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/0237h/obsidian-knowledge-graph-publisher/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/0237h/obsidian-knowledge-graph-publisher/discussions)
 
 ## Acknowledgments
 
-- [Obsidian](https://obsidian.md/) for creating an amazing knowledge management platform
+- [Obsidian](https://obsidian.md/) for creating the editor and knowledge management platform
 - [The Graph](https://thegraph.com/) for building the decentralized knowledge infrastructure
 - [GRC-20](https://github.com/graphprotocol/grc-20-ts) for the knowledge graph protocol
-- The open-source community for inspiration and contributions
-
----
-
-**Made with ❤️ by the Knowledge Graph community**
