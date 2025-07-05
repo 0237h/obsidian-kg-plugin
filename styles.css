@@ -1,0 +1,283 @@
+/* Knowledge Graph Publisher Plugin Styles */
+
+.kg-publisher-modal {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.kg-publisher-modal h2 {
+  color: var(--text-accent);
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.kg-publisher-modal .setting-item {
+  border: none;
+  padding: 15px 0;
+}
+
+.kg-publisher-modal .setting-item:not(:last-child) {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.kg-publisher-modal .setting-item-name {
+  font-weight: 600;
+  color: var(--text-normal);
+  margin-bottom: 5px;
+}
+
+.kg-publisher-modal .setting-item-description {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.kg-publisher-modal input[type="text"],
+.kg-publisher-modal textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 0.9em;
+}
+
+.kg-publisher-modal input[type="text"]:focus,
+.kg-publisher-modal textarea:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px var(--interactive-accent-hover);
+}
+
+.kg-publisher-modal textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.kg-publisher-modal .dropdown {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+}
+
+.kg-publisher-modal .checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kg-publisher-modal .checkbox-container input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.kg-publisher-modal button {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.kg-publisher-modal button:hover {
+  background: var(--interactive-accent-hover);
+}
+
+.kg-publisher-modal button:disabled {
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.kg-publisher-modal .progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--background-modifier-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.kg-publisher-modal .progress-bar::before {
+  content: '';
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: var(--interactive-accent);
+  transition: width 0.3s ease;
+}
+
+.kg-publisher-modal .warning {
+  padding: 12px;
+  background: var(--background-modifier-error);
+  border: 1px solid var(--text-error);
+  border-radius: 4px;
+  color: var(--text-error);
+  margin: 10px 0;
+}
+
+.kg-publisher-modal .success {
+  padding: 12px;
+  background: var(--background-modifier-success);
+  border: 1px solid var(--text-success);
+  border-radius: 4px;
+  color: var(--text-success);
+  margin: 10px 0;
+}
+
+.kg-publisher-modal .info {
+  padding: 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  margin: 10px 0;
+  font-size: 0.85em;
+}
+
+.kg-publisher-modal .info a {
+  color: var(--text-accent);
+  text-decoration: underline;
+}
+
+.kg-publisher-modal .info a:hover {
+  color: var(--text-accent-hover);
+}
+
+.kg-publisher-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.kg-publisher-modal .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: var(--text-normal);
+}
+
+.kg-publisher-modal .form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.kg-publisher-modal .form-actions button {
+  min-width: 80px;
+}
+
+.kg-publisher-modal .form-actions button.secondary {
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.kg-publisher-modal .form-actions button.secondary:hover {
+  background: var(--background-modifier-hover);
+}
+
+/* Status bar styling */
+.status-bar-item.kg-status {
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+
+.status-bar-item.kg-status.kg-ready {
+  color: var(--text-success);
+}
+
+.status-bar-item.kg-status.kg-publishing {
+  color: var(--text-accent);
+}
+
+.status-bar-item.kg-status.kg-error {
+  color: var(--text-error);
+}
+
+/* Ribbon icon styling */
+.side-dock-ribbon-action[aria-label*="Knowledge Graph"] {
+  color: var(--text-accent);
+}
+
+.side-dock-ribbon-action[aria-label*="Knowledge Graph"]:hover {
+  color: var(--text-accent-hover);
+}
+
+/* Tag visualization */
+.kg-tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.kg-tag-cloud .tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  font-size: 0.8em;
+  color: var(--text-normal);
+  transition: all 0.2s;
+}
+
+.kg-tag-cloud .tag:hover {
+  background: var(--background-modifier-hover);
+  transform: translateY(-1px);
+}
+
+.kg-tag-cloud .tag.frequent {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+/* Loading animation */
+.kg-loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--background-modifier-border);
+  border-radius: 50%;
+  border-top-color: var(--interactive-accent);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dark mode adjustments */
+.theme-dark .kg-publisher-modal {
+  --kg-bg-primary: var(--background-primary);
+  --kg-bg-secondary: var(--background-secondary);
+  --kg-text-normal: var(--text-normal);
+  --kg-text-muted: var(--text-muted);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .kg-publisher-modal {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+  
+  .kg-publisher-modal .form-actions {
+    flex-direction: column;
+  }
+  
+  .kg-publisher-modal .form-actions button {
+    width: 100%;
+  }
+}
