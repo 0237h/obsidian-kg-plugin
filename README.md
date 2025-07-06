@@ -177,6 +177,98 @@ The plugin uses the GRC-20 protocol to structure your knowledge:
 3. **Properties**: Tags, metadata, and other attributes become entity properties
 4. **Spaces**: Your knowledge is organized into collaborative spaces
 
+#### Diagram
+
+```mermaid
+graph TD
+    %% Obsidian Layer
+    subgraph "Obsidian Notes"
+        ON["📄 Note: Research.md<br/>Content: AI research notes<br/>Tags: #ai #research<br/>Links: [[Related Paper]]"]
+        OT["🏷️ Tags: #ai, #research"]
+        OL["🔗 Links: [[Related Paper]]"]
+    end
+
+    %% Plugin Data Layer
+    subgraph "Plugin Data Types"
+        ND["NoteData<br/>title: Research<br/>content: AI research...<br/>tags: [ai, research]<br/>links: [Related Paper]"]
+        TD["TagMetadata<br/>name: ai<br/>count: 5<br/>notes: [...]"]
+        LD["LinkData<br/>target: Related Paper<br/>displayText: Related Paper<br/>type: internal"]
+    end
+
+    %% GRC-20 Layer
+    subgraph "GRC-20 Knowledge Graph"
+        subgraph "Properties"
+            P1["Property<br/>id: prop123<br/>dataType: TEXT<br/>name: Title"]
+            P2["Property<br/>id: prop456<br/>dataType: TEXT<br/>name: Content"]
+            P3["Property<br/>id: prop789<br/>dataType: TEXT<br/>name: Tag Name"]
+            P4["Property<br/>id: prop101<br/>dataType: TEXT<br/>name: Link Target"]
+        end
+        
+        subgraph "Types"
+            T1["Type Entity<br/>id: type123<br/>name: Obsidian Note<br/>properties: [prop123, prop456, ...]"]
+            T2["Type Entity<br/>id: type456<br/>name: Obsidian Tag<br/>properties: [prop789]"]
+            T3["Type Entity<br/>id: type789<br/>name: Obsidian Link<br/>properties: [prop101]"]
+        end
+        
+        subgraph "Entities"
+            E1["Entity<br/>id: ent123<br/>values: [{property: prop123, value: Research}]<br/>types: [type123]"]
+            E2["Entity<br/>id: ent456<br/>values: [{property: prop789, value: ai}]<br/>types: [type456]"]
+            E3["Entity<br/>id: ent789<br/>values: [{property: prop101, value: Related Paper}]<br/>types: [type789]"]
+        end
+        
+        subgraph "Relations"
+            R1["Relation<br/>id: rel123<br/>type: hasTagType<br/>fromEntity: ent123<br/>toEntity: ent456<br/>entity: relEnt123"]
+            R2["Relation<br/>id: rel456<br/>type: linksToType<br/>fromEntity: ent123<br/>toEntity: ent789<br/>entity: relEnt456"]
+        end
+    end
+
+    %% Mappings
+    ON --> ND
+    OT --> TD
+    OL --> LD
+
+    %% Properties creation from data
+    ND --> P1
+    ND --> P2
+    TD --> P3
+    LD --> P4
+
+    %% Types creation using properties
+    P1 --> T1
+    P2 --> T1
+    P3 --> T2
+    P4 --> T3
+
+    %% Entities creation with types and values
+    T1 --> E1
+    T2 --> E2
+    T3 --> E3
+    ND --> E1
+    TD --> E2
+    LD --> E3
+
+    %% Relations creation between entities
+    E1 --> R1
+    E2 --> R1
+    E1 --> R2
+    E3 --> R2
+
+    %% Styling
+    classDef obsidian fill:#9c88ff,stroke:#6b46c1,stroke-width:2px,color:#fff
+    classDef plugin fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    classDef property fill:#06b6d4,stroke:#0891b2,stroke-width:2px,color:#fff
+    classDef type fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    classDef entity fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    classDef relation fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+
+    class ON,OT,OL obsidian
+    class ND,TD,LD plugin
+    class P1,P2,P3,P4 property
+    class T1,T2,T3 type
+    class E1,E2,E3 entity
+    class R1,R2 relation
+```
+
 ### Data Flow
 
 1. **Note Processing**: Extract content, tags, links, and metadata
@@ -185,6 +277,79 @@ The plugin uses the GRC-20 protocol to structure your knowledge:
 4. **IPFS Storage**: Encode and store data on IPFS
 5. **Blockchain Anchoring**: Record the IPFS hash on-chain
 6. **Indexing**: The Graph's indexers process and expose your data
+
+#### Diagram
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant P as Plugin
+    participant NP as Note Processor
+    participant KGS as Knowledge Graph Service
+    participant G as GRC-20 Graph
+    participant I as IPFS
+    participant BC as Blockchain
+    participant S as Space
+
+    Note over U,S: Note Creation & Publishing Flow
+
+    U->>P: User Publish Action
+    P->>NP: Process Note
+    
+    Note over NP: Extract metadata, tags, links
+    NP->>NP: Clean Content
+    NP->>NP: Extract Tags
+    NP->>NP: Extract Links
+    NP->>NP: Extract Headings
+    
+    NP->>KGS: Return NoteData
+    KGS->>G: Create Properties
+    G->>KGS: Property IDs + Ops
+    
+    KGS->>G: Create Types
+    G->>KGS: Type IDs + Ops
+    
+    KGS->>G: Create Note Entity
+    G->>KGS: Note Entity ID + Ops
+    
+    alt Include Tags
+        loop For each tag
+            KGS->>G: Create Tag Entity
+            G->>KGS: Tag Entity ID + Ops
+            KGS->>G: Create Has-Tag Relation
+            G->>KGS: Relation ID + Ops
+        end
+    end
+    
+    alt Include Links
+        loop For each link
+            KGS->>G: Create Link Entity
+            G->>KGS: Link Entity ID + Ops
+            KGS->>G: Create Links-To Relation
+            G->>KGS: Relation ID + Ops
+        end
+    end
+    
+    KGS->>I: Publish Edit (All Ops)
+    I->>KGS: IPFS CID
+    
+    KGS->>S: Get Calldata for Space
+    S->>KGS: Transaction Data
+    
+    KGS->>BC: Send Transaction
+    
+    alt Transaction Success
+        BC->>KGS: Transaction Hash
+        KGS->>P: Success Result
+        P->>U: Success Notice
+    else Transaction Failed
+        BC->>KGS: TransactionExecutionError
+        KGS->>P: Error Details
+        P->>U: Error Notice
+    end
+    
+    Note over U,S: Publishing Complete - Note is in Knowledge Graph
+```
 
 ### Privacy and Security
 
