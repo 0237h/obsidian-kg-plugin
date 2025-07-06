@@ -1,0 +1,23 @@
+[test]
+# Test configuration for Bun
+preload = ["./tests/test-setup.ts"]
+timeout = 5000
+
+# Coverage settings
+coverage = true
+coverageDir = "./coverage"
+coverageReporter = ["text"]
+coverageThreshold = 80
+
+# Test file patterns
+testNamePattern = ".*\\.(test|spec)\\.(js|jsx|ts|tsx)$"
+
+# Environment variables for tests
+env = { NODE_ENV = "test" }
+
+# Mock settings
+mockFileSystem = true
+
+# Parallel test execution
+parallel = true
+maxConcurrency = 4

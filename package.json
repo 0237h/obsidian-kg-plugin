@@ -7,7 +7,13 @@
     "dev": "bun esbuild.config.mjs",
     "build": "bun run tsc -noEmit -skipLibCheck && bun run esbuild.config.mjs production",
     "version": "bun run version-bump.mjs && git add manifest.json versions.json",
-    "lint": "bun run tsc --noEmit --skipLibCheck --pretty"
+    "lint": "bun run tsc --noEmit --skipLibCheck --pretty",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "test:unit": "bun test --testNamePattern=\"^(?!.*Integration).*\"",
+    "test:integration": "bun test integration.test.ts",
+    "test:ci": "bun test --coverage --reporter=junit --bail --reporter-outfile tests/tests.out"
   },
   "keywords": [
     "obsidian",
