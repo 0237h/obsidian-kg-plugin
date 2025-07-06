@@ -1,4 +1,5 @@
 import type { Op } from '@graphprotocol/grc-20';
+export type { WalletClient } from 'viem';
 
 export interface NoteData {
   title: string;
@@ -133,7 +134,6 @@ export interface ValidationResult {
 export interface NetworkConfig {
   name: 'MAINNET' | 'TESTNET';
   apiOrigin: string;
-  chainId: number;
   blockExplorer: string;
   gasLimit: number;
   gasPrice: string;

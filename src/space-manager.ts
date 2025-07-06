@@ -17,10 +17,7 @@ export class SpaceManager {
       apiOrigin: isTestnet 
         ? 'https://hypergraph-v2-testnet.up.railway.app'
         : 'https://hypergraph-v2.up.railway.app',
-      chainId: isTestnet ? 421614 : 42161, // Arbitrum testnet / mainnet
-      blockExplorer: isTestnet 
-        ? 'https://sepolia.arbiscan.io'
-        : 'https://arbiscan.io',
+      blockExplorer: 'https://explorer-geo-test-zc16z3tcvf.t.conduit.xyz',
       gasLimit: 500000,
       gasPrice: '0.1',
     };

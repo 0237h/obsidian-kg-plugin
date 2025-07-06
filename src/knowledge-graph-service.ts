@@ -1,11 +1,12 @@
 import { App } from 'obsidian';
-import { Graph, Id, Ipfs, getSmartAccountWalletClient, type Op } from '@graphprotocol/grc-20';
-import type { NoteData, ProcessedEntity, ProcessedRelation } from './types';
+import { Graph, Id, Ipfs, getWalletClient, type Op } from '@graphprotocol/grc-20';
+import type { NoteData, ProcessedEntity, ProcessedRelation, WalletClient } from './types';
 
 export class KnowledgeGraphService {
   private app: App;
   private settings: any;
-  private walletClient: any;
+  // @ts-ignore
+  private walletClient: WalletClient;
   private initialized = false;
 
   constructor(settings: any, app: App) {
@@ -17,11 +18,11 @@ export class KnowledgeGraphService {
     if (this.initialized) return;
     
     try {
-      this.walletClient = await getSmartAccountWalletClient({
+      this.walletClient = await getWalletClient({
         privateKey: this.settings.privateKey,
       });
       this.initialized = true;
-      console.log('Knowledge Graph Service initialized');
+      console.log('Knowledge Graph Service initialized:', JSON.stringify(this.walletClient, null, 4));
     } catch (error) {
       console.error('Failed to initialize Knowledge Graph Service:', error);
       throw error;
@@ -80,9 +81,11 @@ export class KnowledgeGraphService {
       const { cid } = await Ipfs.publishEdit({
         name: `Obsidian Knowledge Update - ${new Date().toISOString()}`,
         ops: allOps,
-        author: this.walletClient.account.address,
+        author: this.walletClient.account!.address,
         network: this.settings.network,
       });
+
+      console.log('Published to IPFS:', cid);
 
       // Get calldata for the space
       const response = await fetch(`${this.settings.apiOrigin}/space/${this.settings.spaceId}/edit/calldata`, {
@@ -101,14 +104,23 @@ export class KnowledgeGraphService {
       const { to, data } = responseData;
 
       // Send transaction
-      const txResult = await this.walletClient.sendTransaction({
-        to,
-        value: 0n,
-        data,
-      });
+      try {
+        const txResult = await this.walletClient.sendTransaction({
+          // @ts-expect-error
+          account: this.walletClient.account,
+          to: to as `0x{string}`,
+          value: 0n,
+          data: data as `0x{string}`,
+        });
 
-      console.log('Transaction sent:', txResult);
-      return { cid, txResult };
+        console.log('To:', to);
+        console.log('Data:', data);
+        console.log('Transaction sent:', txResult);
+
+        return { cid, txResult };
+      } catch (error) {
+        console.log('Transaction error:', JSON.stringify(error, null, 4));
+      }
     } catch (error) {
       console.error('Error publishing to Knowledge Graph:', error);
       throw error;
